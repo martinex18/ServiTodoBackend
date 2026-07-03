@@ -44,14 +44,23 @@ router.post("/send", async (req, res) => {
   }
 });
 
-/*router.post("/reply", async (req, res) => {
+router.post("/reply", async (req, res) => {
   try {
     const workerPhone = req.body.From.replace("whatsapp:", "");
     const reply = req.body.Body.trim().toUpperCase();
 
+    console.log("Worker phone:", workerPhone);
+    console.log("Reply:", reply);
+
     const workerSnapshot = await db.collection("users")
       .where("phone", "==", workerPhone)
       .get();
+
+    console.log("Workers encontrados:", workerSnapshot.size);
+
+    if (!workerSnapshot.empty) {
+      console.log("Worker ID:", workerSnapshot.docs[0].id);
+    }
 
     if (workerSnapshot.empty) {
       return res.status(404).json({
@@ -66,6 +75,8 @@ router.post("/send", async (req, res) => {
       .where("status", "==", "pre_assigned").limit(1)
       .get();
 
+    console.log("Requests encontradas:", requestSnapshot.size);
+
     if (requestSnapshot.empty) {
       return res.status(404).json({
         success: false,
@@ -77,6 +88,7 @@ router.post("/send", async (req, res) => {
 
     if (reply === "1" || reply === "ACEPTAR") {
       await request.ref.update({
+        status: "found",
         workerAccepted: true,
         workerAcceptedAt: new Date(),
       });
@@ -84,6 +96,7 @@ router.post("/send", async (req, res) => {
 
     if (reply === "2" || reply === "RECHAZAR") {
       await request.ref.update({
+        status: "searching",
         workerAccepted: false,
         workerRejectedAt: new Date(),
       });
@@ -100,22 +113,6 @@ router.post("/send", async (req, res) => {
       success: false,
       message: error.message,
     });
-  }
-}); */
-
-router.post("/reply", async (req, res) => {
-  try {
-
-    console.log("================================");
-    console.log("MENSAJE RECIBIDO DE WHATSAPP");
-    console.log(req.body);
-    console.log("================================");
-
-    return res.sendStatus(200);
-
-  } catch (error) {
-    console.error(error);
-    return res.sendStatus(500);
   }
 });
 
