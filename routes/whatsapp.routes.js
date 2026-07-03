@@ -44,7 +44,7 @@ router.post("/send", async (req, res) => {
   }
 });
 
-/*router.post("/reply", async (req, res) => {
+router.post("/reply", async (req, res) => {
   try {
     const workerPhone = req.body.From.replace("whatsapp:", "");
     const reply = req.body.Body.trim().toUpperCase();
@@ -91,7 +91,12 @@ router.post("/send", async (req, res) => {
         status: "found",
         workerAccepted: true,
         workerAcceptedAt: new Date(),
+        workerName: worker.data().name,
+        workerPhone: worker.data().phone,
       });
+      console.log(
+        "Solicitud aceptada"
+      );
     }
 
     if (reply === "2" || reply === "RECHAZAR") {
@@ -100,6 +105,9 @@ router.post("/send", async (req, res) => {
         workerAccepted: false,
         workerRejectedAt: new Date(),
       });
+      console.log(
+        "Solicitud rechazada"
+      );
     }
 
     return res.json({
@@ -113,22 +121,6 @@ router.post("/send", async (req, res) => {
       success: false,
       message: error.message,
     });
-  }
-}); */
-
-router.post("/reply", async (req, res) => {
-  try {
-    console.log("HEADERS");
-    console.log(req.headers);
-    
-    console.log("BODY COMPLETO:");
-    console.log(req.body);
-
-    return res.sendStatus(200);
-
-  } catch (error) {
-    console.error(error);
-    return res.sendStatus(500);
   }
 });
 
