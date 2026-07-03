@@ -114,3 +114,5 @@ app.post("/verify-otp", async (req, res) => {
     
   }
 });
+
+app.use("/api/whatsapp", whatsappRoutes);
