@@ -15,6 +15,7 @@ const app = express();
 const otpStore = {};
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/whatsapp", whatsappRoutes);
@@ -114,5 +115,3 @@ app.post("/verify-otp", async (req, res) => {
     
   }
 });
-
-app.use("/api/whatsapp", whatsappRoutes);

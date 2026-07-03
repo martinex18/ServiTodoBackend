@@ -118,7 +118,9 @@ router.post("/send", async (req, res) => {
 
 router.post("/reply", async (req, res) => {
   try {
-
+    console.log("HEADERS");
+    console.log(req.headers);
+    
     console.log("BODY COMPLETO:");
     console.log(req.body);
 
