@@ -1,7 +1,7 @@
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 
-const serviceAccount = require("../servitodo-47422-firebase-adminsdk-fbsvc-5b439c05fb.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 initializeApp({
     credential: cert(serviceAccount),
