@@ -54,6 +54,7 @@ router.post("/reply", async (req, res) => {
 
     const workerSnapshot = await db.collection("users")
       .where("phone", "==", workerPhone)
+      .where("role", "==", "worker")
       .get();
 
     console.log("Workers encontrados:", workerSnapshot.size);
