@@ -46,7 +46,7 @@ router.post("/send", async (req, res) => {
 
 router.post("/reply", async (req, res) => {
   try {
-    const workerPhone = req.body.From.replace("whatsapp:", "");
+    const workerPhone = req.body.From.replace("whatsapp:", "").replace("+57", "");
     const reply = req.body.Body.trim().toUpperCase();
 
     console.log("Worker phone:", workerPhone);
@@ -55,6 +55,7 @@ router.post("/reply", async (req, res) => {
     const workerSnapshot = await db.collection("users")
       .where("phone", "==", workerPhone)
       .where("role", "==", "worker")
+      .limit(1)
       .get();
 
     console.log("Workers encontrados:", workerSnapshot.size);
