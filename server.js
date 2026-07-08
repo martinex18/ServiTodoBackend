@@ -9,6 +9,7 @@ const client = twilio(
 );
 
 const whatsappRoutes = require("./routes/whatsapp.routes");
+const requestRoutes = require("./routes/requests.routes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/requests", requestRoutes);
 
 const PORT = process.env.PORT || 3001;
 
