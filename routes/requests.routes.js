@@ -4,6 +4,8 @@ const { db } = require("../config/firebaseAdmin");
 const { FieldValue } = require("firebase-admin/firestore");
 
 const { findWorker } = require("../services/request.service");
+const { sendWhatsApp } = require("../services/twilio.service");
+const { buildNewRequestMessage } = require("../utils/whatsappMessages");
 
 router.post("/create", async (req, res) => {
     try {
@@ -39,12 +41,17 @@ router.post("/create", async (req, res) => {
 
         if (result.success && result.workers.length > 0) {
             const worker = result.workers[0];
-
             await requestRef.update({
                 workerId: worker.id,
                 status: "pre_assigned",
                 updatedAt: FieldValue.serverTimestamp(),
             });
+            
+            const message = buildNewRequestMessage({ category: serviceCategory, description: serviceDescription, address: serviceAddress });
+            await sendWhatsApp(
+                `+57${worker.phone}`,
+                message,
+            );
         }
 
         return res.json({

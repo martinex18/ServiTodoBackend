@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { db } = require("../config/firebaseAdmin");
+const { buildNewRequestMessage } = require("../utils/whatsappMessages");
 
 const { sendWhatsApp } = require("../services/twilio.service");
 
@@ -8,25 +9,7 @@ router.post("/send", async (req, res) => {
   try {
     const { workerPhone, category, description, address } = req.body;
 
-    const message = [
-      "🔔 *Nueva solicitud - ServiTodo*",
-      "",
-      "📌 *Servicio:*",
-      category,
-      "",
-      description
-        ? `📝 *Descripción:*\n${description}\n`
-        : "",
-      address
-        ? `📍 *Dirección:*\n${address}\n`
-        : "",
-      "Responde:",
-      "",
-      "1️⃣ ACEPTAR",
-      "2️⃣ RECHAZAR",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const message = buildNewRequestMessage({ category, description, address });
 
     const result = await sendWhatsApp(workerPhone, message);
 
