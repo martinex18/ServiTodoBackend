@@ -52,6 +52,11 @@ router.post("/create", async (req, res) => {
                 `+57${worker.phone}`,
                 message,
             );
+        } else {
+            await requestRef.update({
+                status: "not-found",
+                updatedAt: FieldValue.serverTimestamp(),
+            });
         }
 
         return res.json({
