@@ -49,8 +49,7 @@ router.post("/create", async (req, res) => {
 
         return res.json({
             success: true,
-            message: requestRef.id,
-            workers: result,
+            requestId: requestRef.id,
         });
 
     } catch (error) {
