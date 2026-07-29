@@ -1,8 +1,9 @@
 const { db } = require("../config/firebaseAdmin");
 
-const findWorker = async (category) => {
+const findWorker = async (category, rejectedWorkers = []) => {
     try {
-        console.log(category);
+        console.log('categoria: ', category);
+        console.log('trabajadores rechazados: ', rejectedWorkers);
         const snapshot = await db.collection("users")
             .where("role", "==", "worker")
             .where("workerData.category", "==", category)
@@ -21,9 +22,21 @@ const findWorker = async (category) => {
                 ...doc.data(),
             }));
 
+            const availableWorkers = workers.filter(
+                worker => !rejectedWorkers.includes(worker.id)
+            );
+
+            if (availableWorkers.length === 0) {
+                return {
+                    success: false,
+                    workers: [],
+                    message: "No se encontraron trabajadores disponibles.",
+                }
+            }
+
             return {
                 success: true,
-                workers,
+                workers: availableWorkers,
             };
             
     } catch (error) {

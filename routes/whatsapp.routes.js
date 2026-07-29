@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../config/firebaseAdmin");
 const { buildNewRequestMessage } = require("../utils/whatsappMessages");
+const { FieldValue } = require("firebase-admin/firestore");
 
 const { sendWhatsApp } = require("../services/twilio.service");
+const { findWorker } = require("../services/request.service");
 
 router.post("/send", async (req, res) => {
   try {
@@ -85,14 +87,58 @@ router.post("/reply", async (req, res) => {
     }
 
     if (reply === "2" || reply === "RECHAZAR") {
-      await request.ref.update({
-        status: "searching",
-        workerAccepted: false,
-        workerRejectedAt: new Date(),
-      });
-      console.log(
-        "Solicitud rechazada"
-      );
+      const rejectedWorkers = [
+        ...(request.data().rejectedWorkers || []), // se busca en firestore el array
+        worker.id,
+      ];
+
+      const result = await findWorker(request.data().serviceCategory, rejectedWorkers);
+      console.log("Resultado búsqueda:", result);
+
+      if (result.success) {
+        const nextWorker = result.workers[0];
+
+        await request.ref.update({
+          workerId: nextWorker.id,
+          workerName: nextWorker.name,
+          workerPhone: nextWorker.phone,
+
+          status: "pre_assigned",
+
+          workerAccepted: false,
+          workerRejectedAt: new Date(),
+
+          rejectedWorkers,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        const message = buildNewRequestMessage({
+          category: request.data().serviceCategory,
+          description: request.data().serviceDescription,
+          address: request.data().serviceAddress,
+        });
+
+        await sendWhatsApp(
+          `+57${nextWorker.phone}`,
+          message,
+        );
+
+        console.log("Re asignado a: ", nextWorker.name);
+      } else {
+        await request.ref.update({
+          status: "not-found",
+
+          workerId: null,
+          workerName: null,
+          workerPhone: null,
+
+          workerAccepted: false,
+          workerRejectedAt: new Date(),
+
+          rejectedWorkers,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
     }
 
     return res.json({
